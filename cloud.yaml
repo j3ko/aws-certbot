@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: AWS Certbot - Request & Renew Certs in ACM for CloudFront/S3 hosting
+Description: AWS Certbot - ACM certbot autorenewal
 
 Parameters:
   BucketName:
@@ -11,27 +11,17 @@ Parameters:
     Type: String
 
   DomainList:
-    Description: list of managed domains in csv format (cert request and renewal process)
+    Description: List of managed domains (comma separated)
     Type: String
-    Default: "commit-composer.dev,www.commit-composer.dev,staging.commit-composer.dev"
 
   DomainEmail:
-    Description: email address used in cert request
+    Description: Email address used in cert request
     Type: String
-    Default: "jeffreyko@gmail.com"
 
   CertRenewDays:
-    Description: number of days before cert expiration to request renew
+    Description: Number of days before cert expiration to request renew
     Type: String
-    Default: "30"
-
-  CertbotEnvironment:
-    Description: set Certbot environment
-    Type: String
-    Default: "staging"
-    AllowedValues:
-      - "staging"
-      - "production"
+    Default: "10"
 
 Resources:
   AwsCertbotRole:
@@ -82,7 +72,7 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       Runtime: python3.6
-      Description: Request and Renew Certs in ACM for CloudFront-S3 hosting
+      Description: Request and Renew Certs in ACM
       Handler: main.handler
       Role:
         Fn::GetAtt: ["AwsCertbotRole", "Arn"]
@@ -90,16 +80,13 @@ Resources:
         Variables:
           CERTBOT_BUCKET:
             Ref: BucketName
-          CERTBOT_OBJECT: "certbot_backup.zip"
-          DOMAINS_EMAIL:
+          DOMAIN_EMAIL:
             Ref: DomainEmail
-          DOMAINS_LIST:
+          DOMAIN_LIST:
             Ref: DomainList
           CERTS_RENEW_DAYS_BEFORE_EXPIRATION:
             Ref: CertRenewDays
-          CERTBOT_ENV:
-            Ref: CertbotEnvironment
-      Timeout: 60
+      Timeout: 120
       MemorySize: 512
       Code:
         S3Bucket:
