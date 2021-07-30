@@ -21,7 +21,7 @@ Parameters:
   CertRenewDays:
     Description: Number of days before cert expiration to request renew
     Type: String
-    Default: "10"
+    Default: "20"
 
 Resources:
   AwsCertbotRole:
@@ -94,27 +94,27 @@ Resources:
         S3Key:
           Fn::Sub: "certbot-${ObjectVersion}.zip"
 
-  # CertbotFunctionEvent:
-  #   Type: AWS::Events::Rule
-  #   Properties:
-  #     Description: "Invoke CertbotFunction"
-  #     ScheduleExpression: "rate(1 day)"
-  #     State: "ENABLED"
-  #     Targets:
-  #       - Arn:
-  #           Fn::GetAtt:
-  #             - "CertbotFunction"
-  #             - "Arn"
-  #         Id: "TargetCertbotFunction"
+  AwsCertbotFunctionEvent:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: "Invoke AwsCertbotFunction"
+      ScheduleExpression: "rate(1 day)"
+      State: "ENABLED"
+      Targets:
+        - Arn:
+            Fn::GetAtt:
+              - "AwsCertbotFunction"
+              - "Arn"
+          Id: "TargetAwsCertbotFunction"
 
-  # CertbotFunctionEventPermission:
-  #   Type: AWS::Lambda::Permission
-  #   Properties:
-  #     FunctionName:
-  #       Ref: "CertbotFunction"
-  #     Action: "lambda:InvokeFunction"
-  #     Principal: "events.amazonaws.com"
-  #     SourceArn:
-  #       Fn::GetAtt:
-  #         - "CertbotFunctionEvent"
-  #         - "Arn"
+  AwsCertbotFunctionEventPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName:
+        Ref: "AwsCertbotFunction"
+      Action: "lambda:InvokeFunction"
+      Principal: "events.amazonaws.com"
+      SourceArn:
+        Fn::GetAtt:
+          - "AwsCertbotFunctionEvent"
+          - "Arn"
