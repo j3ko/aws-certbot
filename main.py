@@ -2,7 +2,6 @@ import boto3
 import certbot.main
 import datetime
 import os
-import raven
 import subprocess
 import logging
 
