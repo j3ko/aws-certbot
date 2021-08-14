@@ -1,2 +1,2 @@
 # Cloudflare API token used by Certbot
-dns_cloudflare_api_token = <paste token here>
+dns_cloudflare_api_token = <API TOKEN HERE>

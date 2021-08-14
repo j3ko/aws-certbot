@@ -67,6 +67,25 @@ Resources:
                   - "acm:ListCertificates"
                   - "acm:ImportCertificate"
                 Resource: "*"
+        # - PolicyName: Route53ListZones
+        #   PolicyDocument:
+        #     Version: "2012-10-17"
+        #     Statement:
+        #       - Effect: Allow
+        #         Action:
+        #           - "route53:ListHostedZones"
+        #         Resource: "*"
+        # - PolicyName: Route53ModifyZones
+        #   PolicyDocument:
+        #     Version: "2012-10-17"
+        #     Statement:
+        #       - Effect: Allow
+        #         Action:
+        #           - "route53:GetChange"
+        #           - "route53:ChangeResourceRecordSets"
+        #         Resource:
+        #           - "arn:aws:route53:::change/*"
+        #           - "arn:aws:route53:::hostedzone/<HOSTED ZONE ID HERE>"
 
   AwsCertbotFunction:
     Type: AWS::Lambda::Function
