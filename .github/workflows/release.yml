@@ -1,0 +1,23 @@
+name: Release the spec
+
+on:
+  push:
+    branches:
+      - master
+      - 'release/**'
+
+jobs:
+  release:
+    name: 'Create GitHub release'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+      - name: Add plugin for conventional commits
+        run: npm install conventional-changelog-conventionalcommits
+      - name: Release to GitHub
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release@17.4.3
