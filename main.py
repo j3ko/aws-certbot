@@ -12,6 +12,18 @@ logger.setLevel(logging.INFO)
 s3 = boto3.client('s3')
 acm = boto3.client('acm')
 
+def is_wildcard_domain(domain):
+    wildcard_marker: Union[Text, bytes] = b"*."
+    if isinstance(domain, str):
+        wildcard_marker = u"*."
+    return domain.startswith(wildcard_marker)
+
+def choose_lineagename(domains):
+    if is_wildcard_domain(domains[0]):
+        # Don't make files and directories starting with *.
+        return domains[0][2:]
+    return domains[0]
+
 def get_challenge():
     if (os.path.isfile('./cloudflare.ini')):
         logger.info('Cloudflare configuration detected')
