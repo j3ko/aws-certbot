@@ -6,7 +6,7 @@ function Clean {
 function Build($ID) {
   Get-ChildItem .\certbot*.zip -File | Select-Object -First 1 | Expand-Archive -DestinationPath .\build -Force
   New-Item -Path . -Name "dist" -ItemType "directory" -Force
-  Compress-Archive -Path .\build\*,.\*.py,.\*.ini -DestinationPath .\dist\certbot-${ID}.zip -Force
+  Compress-Archive -Path .\build\*,.\src\*,.\*.ini -DestinationPath .\dist\certbot-${ID}.zip -Force
 }
 
 function CreateBucket($Bucket) {
@@ -30,7 +30,7 @@ function Main {
   $GUID = New-Guid
   Clean
   Build($GUID)
-  Deploy($GUID)
+  # Deploy($GUID)
 }
 
 Main
