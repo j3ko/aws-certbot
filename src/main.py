@@ -18,7 +18,6 @@ def get_challenge():
         logger.info('Cloudflare configuration detected')
         return [
             '--dns-cloudflare',
-            '--dns-cloudflare-propagation-seconds', '60',
             '--dns-cloudflare-credentials', './cloudflare.ini'
         ]
     else:
