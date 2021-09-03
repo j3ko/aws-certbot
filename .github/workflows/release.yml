@@ -1,4 +1,4 @@
-name: Release the spec
+name: release
 
 on:
   push:

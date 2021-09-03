@@ -1,4 +1,4 @@
-# AWS-Certbot
+# AWS-Certbot ![tests](https://github.com/j3ko/aws-certbot/actions/workflows/test.yml/badge.svg)
 Auto renew and update [letsencrypt.org](https://letsencrypt.org) SSL certificates provisioned on [ACM](https://aws.amazon.com/certificate-manager/).
 
 ## Requirements
@@ -58,7 +58,7 @@ Several configuration variables are available on the AWS-Certbot lambda function
 
 `DOMAIN_EMAIL` - Email address to use for [letsencrypt.org](https://letsencrypt.org) registration
 
-`DOMAIN_LIST` - Comma separated list of domains/subdomains to enlist for automatic renewal (eg. `foo.com,subdomain.foo.com`).  Multiple domains are separated by semi-colons (eg. `foo.com,subdomain.foo.com;bar.com,*.bar.com`)
+`DOMAIN_LIST` - Comma separated list of domains/subdomains to enlist for automatic renewal (eg. `foo.com,sub.foo.com`).  Multiple domains are separated by semi-colons (eg. `foo.com,sub.foo.com;bar.com,*.bar.com`)
 
 `CERTS_RENEW_DAYS_BEFORE_EXPIRATION` - Number of days before expiration to attempt renewal
 
