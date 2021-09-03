@@ -80,7 +80,7 @@ class TestDomainList(unittest.TestCase):
         dlist = DomainList(domains)
         self.assertEqual(dlist.lineage, {
             'aab.foo.com': 'aab.foo.com,aa.foo.com,bcd.foo.com',
-            'aab.bar.com': 'aab.bar.com,aa.bar.com,bcd.bar.com'
+            'aab.bar.com': 'bar.com,aa.bar.com,bcd.bar.com'
         })
 
 if __name__ == '__main__':
