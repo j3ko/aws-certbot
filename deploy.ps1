@@ -30,7 +30,7 @@ function Main {
   $GUID = New-Guid
   Clean
   Build($GUID)
-  # Deploy($GUID)
+  Deploy($GUID)
 }
 
 Main
