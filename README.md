@@ -1,4 +1,4 @@
-# AWS-Certbot ![tests](https://github.com/j3ko/aws-certbot/actions/workflows/test.yml/badge.svg) ![release](https://github.com/j3ko/aws-certbot/actions/workflows/release.yml/badge.svg)
+# AWS-Certbot ![tests](https://github.com/j3ko/aws-certbot/actions/workflows/test.yml/badge.svg)
 Auto renew and update [letsencrypt.org](https://letsencrypt.org) SSL certificates provisioned on [ACM](https://aws.amazon.com/certificate-manager/).
 
 ## Requirements
