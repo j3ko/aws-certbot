@@ -58,7 +58,7 @@ Several configuration variables are available on the AWS-Certbot lambda function
 
 `DOMAIN_EMAIL` - email address to use for [letsencrypt.org](https://letsencrypt.org) registration
 
-`DOMAIN_LIST` - comma separated list of domains/subdomains to enlist for automatic renewal (eg. `letsencrypt.org,subdomain.letsencrypt.org`)
+`DOMAIN_LIST` - comma separated list of domains/subdomains to enlist for automatic renewal (eg. `foo.com,subdomain.foo.com`).  Multiple domains are separated by semi-colons (eg. `foo.com,subdomain.foo.com;bar.com,*.bar.com`)
 
 `CERTS_RENEW_DAYS_BEFORE_EXPIRATION` - number of days before expiration to attempt renewal
 
