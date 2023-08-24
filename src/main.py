@@ -4,6 +4,7 @@ import datetime
 import os
 import subprocess
 import logging
+from aws_certbot.domain_list import DomainList
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -17,7 +18,6 @@ def get_challenge():
         logger.info('Cloudflare configuration detected')
         return [
             '--dns-cloudflare',
-            '--dns-cloudflare-propagation-seconds', '60',
             '--dns-cloudflare-credentials', './cloudflare.ini'
         ]
     else:
@@ -29,8 +29,8 @@ def read_and_delete_file(path):
     os.remove(path)
     return contents
 
-def provision_cert(email, domains):
-    logger.info('Attempting to provision cert for: {}'.format(domains))
+def provision_cert(email, lineage, domains):
+    logger.info('Attempting to provision cert for: ({}) {}'.format(lineage, domains))
     params = [
         'certonly',                             # Obtain a cert but don't install it
         '-n',                                   # Run in non-interactive mode
@@ -45,8 +45,7 @@ def provision_cert(email, domains):
     params += get_challenge()
     certbot.main.main(params)
 
-    first_domain = domains.split(',')[0]
-    path = '/tmp/config-dir/live/' + first_domain + '/'
+    path = '/tmp/config-dir/live/' + lineage + '/'
     return {
         'certificate': read_and_delete_file(path + 'cert.pem'),
         'private_key': read_and_delete_file(path + 'privkey.pem'),
@@ -105,11 +104,14 @@ def upload_cert_to_acm(cert, domains):
 
 def handler(event, context):
     try:
-        domains = os.environ['DOMAIN_LIST']
-        logger.info('processing domain list: {}'.format(domains))
-        if should_provision(domains):
-            cert = provision_cert(os.environ['DOMAIN_EMAIL'], domains)
-            upload_cert_to_acm(cert, domains)
+        dlist = DomainList(os.environ['DOMAIN_LIST'])
+        email = os.environ['DOMAIN_EMAIL']
+        logger.info('Processing domain list: {}'.format(dlist.original))
+        for lineage, domains in dlist.lineage.items():
+            logger.info('Processing: ({}) {}'.format(lineage, domains))
+            if should_provision(domains):
+                cert = provision_cert(email, lineage, domains)
+                upload_cert_to_acm(cert, domains)
     except Exception as e:
         logger.error(e)
         raise

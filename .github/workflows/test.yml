@@ -1,0 +1,22 @@
+name: tests
+on:
+  push:
+    branches:
+      - develop
+      - master
+      - beta
+      - alpha
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Python 3
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.11
+      - name: Run tests
+        run: python -m unittest discover src
