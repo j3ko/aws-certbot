@@ -1,6 +1,6 @@
 function Clean {
-  Remove-Item .\build -Recurse -Force
-  Remove-Item .\dist -Recurse -Force
+  Remove-Item .\build -Recurse -Force -ErrorAction Ignore
+  Remove-Item .\dist -Recurse -Force -ErrorAction Ignore
 }
 
 function Build($ID) {

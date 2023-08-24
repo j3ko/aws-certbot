@@ -13,10 +13,12 @@ Parameters:
   DomainList:
     Description: List of managed domains (comma separated)
     Type: String
+    Default: "domain.com"
 
   DomainEmail:
     Description: Email address used in cert request
     Type: String
+    Default: "contact@email.com"
 
   CertRenewDays:
     Description: Number of days before cert expiration to request renew
@@ -90,7 +92,7 @@ Resources:
   AwsCertbotFunction:
     Type: AWS::Lambda::Function
     Properties:
-      Runtime: python3.6
+      Runtime: python3.11
       Description: Request and Renew Certs in ACM
       Handler: main.handler
       Role:
