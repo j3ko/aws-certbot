@@ -23,4 +23,4 @@ WORKDIR /app
 COPY . /app
 
 # Entry point to run Docker commands on the host
-CMD ["bash", "./deploy.sh"]
+CMD ["./run.sh"]

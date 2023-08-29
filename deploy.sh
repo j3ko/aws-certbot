@@ -1,5 +1,5 @@
 #!/bin/bash
-docker build -t ${APP_NAME} --progress=plain . -f ./image/lambda.Dockerfile
+docker build -t ${APP_NAME} --no-cache --progress=plain . -f ./image/lambda.Dockerfile
 docker tag ${APP_NAME} ${APP_NAME}:latest
 
 ECR_REPOSITORY_NAME="${APP_NAME}"
@@ -20,7 +20,7 @@ fi
 # Extract repository URI from response (whether it was just created or already existed)
 ECR_REPOSITORY_URI=$(echo "${REPOSITORY_RESPONSE}" | jq -r '.repositories[0].repositoryUri')
 
-echo "Using repository. URI: ${ECR_REPOSITORY_URI}"
+echo "Using repository URI: ${ECR_REPOSITORY_URI}"
 
 # Tag local Docker image and push to ECR repository
 docker tag ${APP_NAME} ${ECR_REPOSITORY_URI}:latest

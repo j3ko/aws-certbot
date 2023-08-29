@@ -70,19 +70,20 @@ def should_provision(domains):
 
 def find_existing_cert(domains):
     domains = frozenset(domains.split(','))
-
     client = boto3.client('acm')
-    paginator = client.get_paginator('list_certificates')
-    iterator = paginator.paginate(PaginationConfig={'MaxItems':1000})
+    certs = client.list_certificates(
+        Includes={'keyTypes': ['RSA_1024', 'RSA_2048', 'RSA_3072', 'RSA_4096', 'EC_prime256v1', 'EC_secp384r1', 'EC_secp521r1']},
+        MaxItems=1000
+    )
 
-    for page in iterator:
-        for cert in page['CertificateSummaryList']:
-            cert = client.describe_certificate(CertificateArn=cert['CertificateArn'])
-            sans = frozenset(cert['Certificate']['SubjectAlternativeNames'])
-            if sans.issubset(domains):
-                return cert
+    for cert in certs['CertificateSummaryList']:
+        cert = client.describe_certificate(CertificateArn=cert['CertificateArn'])
+        sans = frozenset(cert['Certificate']['SubjectAlternativeNames'])
+        if sans.issubset(domains):
+            return cert
 
     return None
+
 
 def upload_cert_to_acm(cert, domains):
     existing_cert = find_existing_cert(domains)
