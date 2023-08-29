@@ -15,10 +15,13 @@ REPOSITORY_RESPONSE=$(aws ecr describe-repositories --repository-names ${ECR_REP
 if [ -z "$REPOSITORY_RESPONSE" ]; then
   echo "Creating repository ${ECR_REPOSITORY_NAME}..."
   REPOSITORY_RESPONSE=$(aws ecr create-repository --repository-name ${ECR_REPOSITORY_NAME} --image-scanning-configuration scanOnPush=true --image-tag-mutability MUTABLE)
+  ECR_REPOSITORY_URI=$(echo "${REPOSITORY_RESPONSE}" | jq -r '.repository.repositoryUri')
+else
+  ECR_REPOSITORY_URI=$(echo "${REPOSITORY_RESPONSE}" | jq -r '.repositories[0].repositoryUri')
 fi
 
 # Extract repository URI from response (whether it was just created or already existed)
-ECR_REPOSITORY_URI=$(echo "${REPOSITORY_RESPONSE}" | jq -r '.repositories[0].repositoryUri')
+
 
 echo "Using repository URI: ${ECR_REPOSITORY_URI}"
 
