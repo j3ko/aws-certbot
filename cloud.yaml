@@ -98,3 +98,16 @@ Resources:
         Fn::GetAtt:
           - "AwsCertbotFunctionEvent"
           - "Arn"
+
+Outputs:
+  AwsCertbotFunctionArn:
+    Description: ARN of the AWS Certbot Lambda function
+    Value: !GetAtt AwsCertbotFunction.Arn
+
+  AwsCertbotFunctionName:
+    Description: Name of the AWS Certbot Lambda function
+    Value: !Ref AwsCertbotFunction
+
+  EventRuleName:
+    Description: Name of the AWS Certbot Lambda event rule
+    Value: !Ref AwsCertbotFunctionEvent

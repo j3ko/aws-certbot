@@ -1,4 +1,6 @@
 #!/bin/bash
+set -e
+
 docker build -t ${APP_NAME} --no-cache --progress=plain . -f ./image/lambda.Dockerfile
 docker tag ${APP_NAME} ${APP_NAME}:latest
 
@@ -10,19 +12,18 @@ AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query 'Account' --output text)
 echo "Authenticating with docker..."
 docker login -u AWS -p $(aws ecr get-login-password --region ${AWS_DEFAULT_REGION}) ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
 
-REPOSITORY_RESPONSE=$(aws ecr describe-repositories --repository-names ${ECR_REPOSITORY_NAME} --region=${AWS_DEFAULT_REGION} 2>/dev/null)
+set +e
+echo "Checking for existing repositories..."
+REPOSITORY_RESPONSE=$(aws ecr describe-repositories --repository-names ${ECR_REPOSITORY_NAME} --region=${AWS_DEFAULT_REGION} 2>&1)
+set -e
 
-if [ -z "$REPOSITORY_RESPONSE" ]; then
+if [[ $REPOSITORY_RESPONSE == *"RepositoryNotFoundException"* ]]; then
   echo "Creating repository ${ECR_REPOSITORY_NAME}..."
   REPOSITORY_RESPONSE=$(aws ecr create-repository --repository-name ${ECR_REPOSITORY_NAME} --image-scanning-configuration scanOnPush=true --image-tag-mutability MUTABLE)
   ECR_REPOSITORY_URI=$(echo "${REPOSITORY_RESPONSE}" | jq -r '.repository.repositoryUri')
 else
   ECR_REPOSITORY_URI=$(echo "${REPOSITORY_RESPONSE}" | jq -r '.repositories[0].repositoryUri')
 fi
-
-# Extract repository URI from response (whether it was just created or already existed)
-
-
 echo "Using repository URI: ${ECR_REPOSITORY_URI}"
 
 # Tag local Docker image and push to ECR repository
@@ -39,5 +40,15 @@ aws cloudformation deploy --stack-name ${APP_NAME} \
     DomainList=${DOMAIN_LIST} \
     DomainEmail=${DOMAIN_EMAIL} \
     DaysBeforeExpiration=${DAYS_BEFORE_EXPIRATION} \
-    Timestamp=${TIMESTAMP}\
+    Timestamp=${TIMESTAMP} \
   --capabilities CAPABILITY_IAM
+
+# Get the ARN of the Lambda function from stack outputs
+CERTBOT_FUNCTION_ARN=$(aws cloudformation describe-stacks --stack-name ${APP_NAME} --query 'Stacks[0].Outputs[?OutputKey==`AwsCertbotFunctionArn`].OutputValue' --output text)
+
+# Update the Lambda function code using the extracted ARN
+aws lambda update-function-code \
+  --function-name ${CERTBOT_FUNCTION_ARN} \
+  --image-uri ${ECR_REPOSITORY_URI}:latest > /dev/null
+
+echo "Deployment complete"

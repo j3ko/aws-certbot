@@ -1,4 +1,6 @@
 #!/bin/bash
+set -e
+
 echo "Building image..."
 docker build -t ${APP_NAME} --no-cache --progress=plain . -f ./image/lambda.Dockerfile
 
@@ -11,9 +13,13 @@ CONTAINER_ID=$(docker run -d -p ${HOST_PORT}:8080 --env-file=./.env ${APP_NAME})
 # Start the container logs in the background
 docker logs -f $CONTAINER_ID &
 
+echo "Waiting for container to initialize..."
+# Adding a delay of 5 seconds before making the request
+sleep 5
+
 echo "Making request..."
 # Use 'host.docker.internal' for Windows or 'localhost' for Linux/Mac
-curl "http://host.docker.internal:${HOST_PORT}/2015-03-31/functions/function/invocations" -d '{"payload":""}'
+curl "http://host.docker.internal:${HOST_PORT}/2015-03-31/functions/function/invocations" -d '{"payload":""}' > /dev/null
 
 echo "Stopping container..."
 # Stop the background container logs process

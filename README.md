@@ -35,7 +35,6 @@ Running **aws-certbot** locally will:
 ## Environment Variables
 | Variable | Description | Required? |
 |---|---|---|
-| CERTBOT_VERSION | Certbot version to build  | ✅ |
 | APP_NAME | Name used for docker images/AWS resources | ✅ |
 | AWS_ACCESS_KEY_ID | AWS access key |  ✅ |
 | AWS_SECRET_ACCESS_KEY | AWS secret access key |  ✅ |
