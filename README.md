@@ -1,7 +1,7 @@
 # AWS-Certbot ![tests](https://github.com/j3ko/aws-certbot/actions/workflows/test.yml/badge.svg)
 Auto renew [letsencrypt.org](https://letsencrypt.org) SSL certificates provisioned on [ACM](https://aws.amazon.com/certificate-manager/).
 
-## Pre-requisites
+## Requirements
 - [Docker v24+](https://docs.docker.com/engine/)
 
 ## Quick Start
