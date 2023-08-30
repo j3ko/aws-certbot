@@ -39,7 +39,7 @@ Running **aws-certbot** locally will:
 | AWS_ACCESS_KEY_ID | AWS access key |  ✅ |
 | AWS_SECRET_ACCESS_KEY | AWS secret access key |  ✅ |
 | AWS_DEFAULT_REGION | AWS region to use |  ✅ |
-| DOMAIN_LIST | A list of domains grouped by commas and semicolons semicolon seperates groups of domains while commas seperate individual domains; e.g., `domain.com,*.domain.com;example.io,staging.example.io` |  ✅ |
+| DOMAIN_LIST | A list of domains grouped by commas and semicolons.  The semicolon seperates groups of domains while commas seperate individual domains; e.g., `domain.com,*.domain.com;example.io,staging.example.io` |  ✅ |
 | DOMAIN_EMAIL | Cloudflare API key with edit.zone permissions |  ✅ |
 | DAYS_BEFORE_EXPIRATION | Number of days before expiration to request renewal |  ✅ |
 
