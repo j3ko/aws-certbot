@@ -67,9 +67,8 @@ Running **aws-certbot** locally will:
 
 ## Known Issues
 
-- Only cloudflare managed domains can be used currentlyl
-- Cloudflare API key is visible in lambda env. variables.
-- Limit of 1000 domains in ACM.
+- Only Cloudflare managed domains can be used currently
+- Cloudflare API key is visible in lambda environment variables.
 
 ## Credits
 AWS-Certbot is based largely on the following amazing projects:
