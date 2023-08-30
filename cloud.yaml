@@ -15,7 +15,7 @@ Parameters:
   DomainEmail:
     Type: String
 
-  CertsRenewDaysBeforeExpiration:
+  DaysBeforeExpiration:
     Type: String
 
   Timestamp:
@@ -68,7 +68,7 @@ Resources:
           DNS_CLOUDFLARE_API_TOKEN: !Ref DnsCloudflareApiToken
           DOMAIN_EMAIL: !Ref DomainEmail
           DOMAIN_LIST: !Ref DomainList
-          CERTS_RENEW_DAYS_BEFORE_EXPIRATION: !Ref CertsRenewDaysBeforeExpiration
+          DAYS_BEFORE_EXPIRATION: !Ref DaysBeforeExpiration
       Timeout: 120
       MemorySize: 512
       Code:

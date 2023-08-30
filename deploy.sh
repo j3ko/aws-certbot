@@ -38,6 +38,6 @@ aws cloudformation deploy --stack-name ${APP_NAME} \
     DnsCloudflareApiToken=${DNS_CLOUDFLARE_API_TOKEN} \
     DomainList=${DOMAIN_LIST} \
     DomainEmail=${DOMAIN_EMAIL} \
-    CertsRenewDaysBeforeExpiration=${CERTS_RENEW_DAYS_BEFORE_EXPIRATION} \
+    DaysBeforeExpiration=${DAYS_BEFORE_EXPIRATION} \
     Timestamp=${TIMESTAMP}\
   --capabilities CAPABILITY_IAM

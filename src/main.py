@@ -61,7 +61,7 @@ def should_provision(domains):
         now = datetime.datetime.now(datetime.timezone.utc)
         not_after = existing_cert['Certificate']['NotAfter']
         expiry = (not_after - now).days
-        cutoff = int(os.environ['CERTS_RENEW_DAYS_BEFORE_EXPIRATION'])
+        cutoff = int(os.environ['DAYS_BEFORE_EXPIRATION'])
         logger.info('Existing cert found with expiry ({expiry}) <= cutoff ({cutoff})'.format(expiry=expiry, cutoff=cutoff))
         return expiry <= cutoff
     else:

@@ -42,7 +42,7 @@ Running **aws-certbot** locally will:
 | AWS_DEFAULT_REGION | AWS region to use |  ✅ |
 | DOMAIN_LIST | A list of domains grouped by commas and semicolons semicolon seperates groups of domains while commas seperate individual domains; e.g., `domain.com,*.domain.com;example.io,staging.example.io` |  ✅ |
 | DOMAIN_EMAIL | Cloudflare API key with edit.zone permissions |  ✅ |
-| CERTS_RENEW_DAYS_BEFORE_EXPIRATION | Number of days before expiration to request renewal |  ✅ |
+| DAYS_BEFORE_EXPIRATION | Number of days before expiration to request renewal |  ✅ |
 
 ## Deploying to AWS
 
