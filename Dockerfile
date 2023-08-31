@@ -1,26 +1,36 @@
-FROM ubuntu:20.04
+# Final production image
+FROM ubuntu:22.04
 
-# Install Docker inside the container
+# Dependencies (needed for scripts as well)
 RUN apt-get update && \
-    apt-get install -y apt-transport-https ca-certificates curl software-properties-common && \
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - && \
-    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" && \
-    apt-get update && \
-    apt-get install -y docker-ce
+    apt-get install -y unzip jq curl
 
-# Install awscli
-RUN apt-get install -y unzip && \
-    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
-    unzip awscliv2.zip && \
-    ./aws/install
+# Install docker
+RUN curl -fsSL https://get.docker.com -o get-docker.sh && \
+    sh get-docker.sh
 
-# Other dependencies
-RUN apt-get install -y jq
+# Install AWS CLI
+RUN ARCH=$(dpkg --print-architecture) && \
+    if [ "$ARCH" = "amd64" ]; then \
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
+        unzip awscliv2.zip && \
+        ./aws/install; \
+    elif [ "$ARCH" = "arm64" ]; then \
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv2.zip" && \
+        unzip awscliv2.zip && \
+        ./aws/install; \
+    else \
+        echo "Unsupported architecture: $ARCH"; \
+    fi
 
 # Setup workspace
 WORKDIR /app
 
 COPY . /app
+
+# Give executable permissions
+RUN chmod +x /app/run.sh
+RUN chmod +x /app/deploy.sh
 
 # Entry point to run Docker commands on the host
 CMD ["./run.sh"]

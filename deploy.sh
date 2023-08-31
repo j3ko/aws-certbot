@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-docker build -t ${APP_NAME} --no-cache --progress=plain . -f ./image/lambda.Dockerfile
+docker build -t ${APP_NAME} --no-cache . -f ./image/lambda.Dockerfile
 docker tag ${APP_NAME} ${APP_NAME}:latest
 
 ECR_REPOSITORY_NAME="${APP_NAME}"
