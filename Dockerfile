@@ -1,4 +1,3 @@
-# Final production image
 FROM ubuntu:22.04
 
 # Dependencies (needed for scripts as well)
