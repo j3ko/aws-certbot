@@ -66,7 +66,7 @@ Running **aws-certbot** locally will:
 
 ## Known Issues
 
-- Only Cloudflare managed domains can be used currently
+- Only Cloudflare-managed domains can currently be used.
 - Cloudflare API key is visible in lambda environment variables.
 
 ## Credits
