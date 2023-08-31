@@ -1,66 +1,73 @@
 # AWS-Certbot ![tests](https://github.com/j3ko/aws-certbot/actions/workflows/test.yml/badge.svg)
-Auto renew and update [letsencrypt.org](https://letsencrypt.org) SSL certificates provisioned on [ACM](https://aws.amazon.com/certificate-manager/).
+Auto renew [letsencrypt.org](https://letsencrypt.org) SSL certificates provisioned on [ACM](https://aws.amazon.com/certificate-manager/).
 
 ## Requirements
-- [AWS CLI v2](https://aws.amazon.com/cli/)
-- [PowerShell 7.1+](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell?view=powershell-7.1)
-- Registered domain ([namecheap](https://www.namecheap.com/), [godaddy](https://godaddy.com/), etc..)
-- DNS service ([cloudflare](https://www.cloudflare.com/), [route53](https://aws.amazon.com/route53/), etc..)
+- [Docker v24+](https://docs.docker.com/engine/)
 
-## Setup
-
-### Introduction
-Certbot integrates with many popular [DNS services](https://certbot.eff.org/docs/using.html?highlight=dns#dns-plugins) to verify SSL certificate challenges automatically via API. AWS-Certbot currently handles Route53 and Cloudflare integration.  Cloudflare has the advantage of offering free DNS services for personal/hobby project sites.  For integrations with other services, please open a [Feature Request](https://github.com/j3ko/aws-certbot/issues/new?assignees=j3ko&labels=enhancement&template=feature_request.md&title=).
-
-### Cloudflare Setup
-1. [Register](https://dash.cloudflare.com/sign-up) for a Cloudflare account
-1. Configure your domain registrar to use Cloudflare as your DNS service provider.  This is specific for each registrar ([namecheap specific guide](https://www.namecheap.com/support/knowledgebase/article.aspx/9607/2210/how-to-set-up-dns-records-for-your-domain-in-cloudflare-account/)).
-1. [Create](https://developers.cloudflare.com/api/tokens/create) a Cloudflare API token.  It is recommended to generate a token with the minimum required permissions (ie. read/write access to the DNS zone you want AWS-Certbot to handle).
-1. Rename `cloudflare.ini.sample` to `cloudflare.ini` and replace the placeholder `<API TOKEN HERE>` with your newly created API token.
-
-### Route53 Setup
-1. [Create](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/CreatingHostedZone.html) a new hosted zone for your domain in AWS Route53
-1. Configure your domain registrar to use Route53 as your DNS service provider.  This is specific for each registrar ([namecheap specific guide](https://www.namecheap.com/support/knowledgebase/article.aspx/10371/2208/how-do-i-link-my-domain-to-amazon-web-services/))
-1. Uncomment the following block in `cloud.yaml`:
+## Quick Start
+1. ```
+   git clone git@github.com:j3ko/aws-certbot.git
    ```
-    # - PolicyName: Route53ListZones
-    #   PolicyDocument:
-    #     Version: "2012-10-17"
-    #     Statement:
-    #       - Effect: Allow
-    #         Action:
-    #           - "route53:ListHostedZones"
-    #         Resource: "*"
-    # - PolicyName: Route53ModifyZones
-    #   PolicyDocument:
-    #     Version: "2012-10-17"
-    #     Statement:
-    #       - Effect: Allow
-    #         Action:
-    #           - "route53:GetChange"
-    #           - "route53:ChangeResourceRecordSets"
-    #         Resource:
-    #           - "arn:aws:route53:::change/*"
-    #           - "arn:aws:route53:::hostedzone/<HOSTED ZONE ID HERE>"
+
+1. ```
+   cd aws-certbot
    ```
-1. Replace the `<HOSTED ZONE ID HERE>` placeholder with your newly created hosted zone id
 
-## Deployment
-Run
-```
-.\deploy.ps1
-```
+1. Edit `.env.sample` and fill in the [required fields](#environment-variables)
 
-## Configuration
-Several configuration variables are available on the AWS-Certbot lambda function:
+1. Build the docker image
 
-`CERTBOT_BUCKET` - Bucket name containing AWS-Certbot code
+   ```bash
+   docker build -t aws-certbot-builder .
+   ```
+1. Run **aws-certbot** locally
 
-`DOMAIN_EMAIL` - Email address to use for [letsencrypt.org](https://letsencrypt.org) registration
+   ```bash
+   docker run -it --rm --env-file=./.env.sample -v /var/run/docker.sock:/var/run/docker.sock aws-certbot-builder
+   ```
 
-`DOMAIN_LIST` - Comma separated list of domains/subdomains to enlist for automatic renewal (eg. `foo.com,sub.foo.com`).  Multiple domains are separated by semi-colons (eg. `foo.com,sub.foo.com;bar.com,*.bar.com`)
+### What does it do?
+Running **aws-certbot** locally will:
+1.  Check ACM to see if any domains in `DOMAIN_LIST` are expiring soon.
+1.  If domains are missing or expiring, certbot runs and generates a new SSL certificate
+1.  Any newly generated certificates are uploaded to ACM
 
-`CERTS_RENEW_DAYS_BEFORE_EXPIRATION` - Number of days before expiration to attempt renewal
+## Environment Variables
+| Variable | Description | Required? |
+|---|---|---|
+| APP_NAME | Name used for docker images/AWS resources | ✅ |
+| AWS_ACCESS_KEY_ID | AWS access key |  ✅ |
+| AWS_SECRET_ACCESS_KEY | AWS secret access key |  ✅ |
+| AWS_DEFAULT_REGION | AWS region to use |  ✅ |
+| DOMAIN_LIST | A list of domains separated by commas and semicolons. The semicolon separates groups of domains, while commas separate individual domains. For example: `domain.com,*.domain.com;example.io,staging.example.io` |  ✅ |
+| DOMAIN_EMAIL | Cloudflare API key with edit.zone permissions |  ✅ |
+| DAYS_BEFORE_EXPIRATION | Number of days before expiration to request renewal |  ✅ |
+
+## Deploying to AWS
+
+1. Edit `.env.sample` and fill in the [required fields](#environment-variables)
+
+1. Build the docker image
+
+   ```bash
+   docker build -t aws-certbot-builder .
+   ```
+1. Deploy **aws-certbot** to AWS
+
+   ```bash
+   docker run -it --rm --env-file=./.env.sample -v /var/run/docker.sock:/var/run/docker.sock aws-certbot-builder ./deploy.sh
+   ```
+
+### What does it do?
+
+1. The **aws-certbot** docker image is built and uploaded to [ECR](https://aws.amazon.com/ecr/).
+1. The cloud formation defined in `cloud.yaml` is deployed to run the docker image as a lambda function.
+1. A timer is defined in `cloud.yaml` to execute the lambda function once a day.
+
+## Known Issues
+
+- Only Cloudflare-managed domains can currently be used.
+- Cloudflare API key is visible in lambda environment variables.
 
 ## Credits
 AWS-Certbot is based largely on the following amazing projects:

@@ -1,5 +1,4 @@
 import boto3
-import certbot.main
 import datetime
 import os
 import subprocess
@@ -9,16 +8,20 @@ from aws_certbot.domain_list import DomainList
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-# Get clients
-s3 = boto3.client('s3')
-acm = boto3.client('acm')
+def chmod_digit(file_path, perms):
+    os.chmod(file_path, int(str(perms), base=8))
 
 def get_challenge():
-    if (os.path.isfile('./cloudflare.ini')):
+    if (os.environ['DNS_CLOUDFLARE_API_TOKEN'] is not None):
         logger.info('Cloudflare configuration detected')
+        with open('/tmp/cloudflare.ini', 'w') as file:
+            file.write('dns_cloudflare_api_token = ' + os.environ['DNS_CLOUDFLARE_API_TOKEN'])
+            chmod_digit('/tmp/cloudflare.ini', 600)
+
         return [
             '--dns-cloudflare',
-            '--dns-cloudflare-credentials', './cloudflare.ini'
+            '--dns-cloudflare-propagation-seconds', '60',
+            '--dns-cloudflare-credentials', '/tmp/cloudflare.ini'
         ]
     else:
         return ['--dns-route53']
@@ -32,18 +35,18 @@ def read_and_delete_file(path):
 def provision_cert(email, lineage, domains):
     logger.info('Attempting to provision cert for: ({}) {}'.format(lineage, domains))
     params = [
-        'certonly',                             # Obtain a cert but don't install it
-        '-n',                                   # Run in non-interactive mode
-        '--agree-tos',                          # Agree to the terms of service,
-        '--email', email,                       # Email
-        '-d', domains,                          # Domains to provision certs for
-        # Override directory paths so script doesn't have to be run as root
+        'certbot',
+        'certonly',
+        '-n', # non-interactive
+        '--agree-tos',
+        '--email', email,
+        '-d', domains,
         '--config-dir', '/tmp/config-dir/',
         '--work-dir', '/tmp/work-dir/',
         '--logs-dir', '/tmp/logs-dir/',
     ]
     params += get_challenge()
-    certbot.main.main(params)
+    subprocess.run(params)
 
     path = '/tmp/config-dir/live/' + lineage + '/'
     return {
@@ -58,7 +61,7 @@ def should_provision(domains):
         now = datetime.datetime.now(datetime.timezone.utc)
         not_after = existing_cert['Certificate']['NotAfter']
         expiry = (not_after - now).days
-        cutoff = int(os.environ['CERTS_RENEW_DAYS_BEFORE_EXPIRATION'])
+        cutoff = int(os.environ['DAYS_BEFORE_EXPIRATION'])
         logger.info('Existing cert found with expiry ({expiry}) <= cutoff ({cutoff})'.format(expiry=expiry, cutoff=cutoff))
         return expiry <= cutoff
     else:
@@ -67,19 +70,20 @@ def should_provision(domains):
 
 def find_existing_cert(domains):
     domains = frozenset(domains.split(','))
-
     client = boto3.client('acm')
-    paginator = client.get_paginator('list_certificates')
-    iterator = paginator.paginate(PaginationConfig={'MaxItems':1000})
+    certs = client.list_certificates(
+        Includes={'keyTypes': ['RSA_1024', 'RSA_2048', 'RSA_3072', 'RSA_4096', 'EC_prime256v1', 'EC_secp384r1', 'EC_secp521r1']},
+        MaxItems=1000
+    )
 
-    for page in iterator:
-        for cert in page['CertificateSummaryList']:
-            cert = client.describe_certificate(CertificateArn=cert['CertificateArn'])
-            sans = frozenset(cert['Certificate']['SubjectAlternativeNames'])
-            if sans.issubset(domains):
-                return cert
+    for cert in certs['CertificateSummaryList']:
+        cert = client.describe_certificate(CertificateArn=cert['CertificateArn'])
+        sans = frozenset(cert['Certificate']['SubjectAlternativeNames'])
+        if sans.issubset(domains):
+            return cert
 
     return None
+
 
 def upload_cert_to_acm(cert, domains):
     existing_cert = find_existing_cert(domains)

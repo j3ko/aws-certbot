@@ -2,26 +2,24 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: AWS Certbot - ACM certbot autorenewal
 
 Parameters:
-  BucketName:
-    Description: S3 Bucket (Certbot configuration tree and lambda source package)
+  EcrRepositoryUri:
     Type: String
 
-  ObjectVersion:
-    Description: Generated object version
+  DnsCloudflareApiToken:
     Type: String
+    NoEcho: true
 
   DomainList:
-    Description: List of managed domains (comma separated)
     Type: String
 
   DomainEmail:
-    Description: Email address used in cert request
     Type: String
 
-  CertRenewDays:
-    Description: Number of days before cert expiration to request renew
+  DaysBeforeExpiration:
     Type: String
-    Default: "20"
+
+  Timestamp:
+    Type: String
 
 Resources:
   AwsCertbotRole:
@@ -47,16 +45,6 @@ Resources:
                   - "logs:CreateLogStream"
                   - "logs:PutLogEvents"
                 Resource: arn:aws:logs:*:*:*
-        - PolicyName: BucketGetPutObject
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: Allow
-                Action:
-                  - "s3:GetObject"
-                  - "s3:PutObject"
-                Resource:
-                  Fn::Join: ["", ["arn:aws:s3:::", Ref: "BucketName", "/*"]]
         - PolicyName: ACMGetImportCerts
           PolicyDocument:
             Version: "2012-10-17"
@@ -67,51 +55,24 @@ Resources:
                   - "acm:ListCertificates"
                   - "acm:ImportCertificate"
                 Resource: "*"
-        # - PolicyName: Route53ListZones
-        #   PolicyDocument:
-        #     Version: "2012-10-17"
-        #     Statement:
-        #       - Effect: Allow
-        #         Action:
-        #           - "route53:ListHostedZones"
-        #         Resource: "*"
-        # - PolicyName: Route53ModifyZones
-        #   PolicyDocument:
-        #     Version: "2012-10-17"
-        #     Statement:
-        #       - Effect: Allow
-        #         Action:
-        #           - "route53:GetChange"
-        #           - "route53:ChangeResourceRecordSets"
-        #         Resource:
-        #           - "arn:aws:route53:::change/*"
-        #           - "arn:aws:route53:::hostedzone/<HOSTED ZONE ID HERE>"
 
   AwsCertbotFunction:
     Type: AWS::Lambda::Function
     Properties:
-      Runtime: python3.6
       Description: Request and Renew Certs in ACM
-      Handler: main.handler
+      PackageType: Image
       Role:
         Fn::GetAtt: ["AwsCertbotRole", "Arn"]
       Environment:
         Variables:
-          CERTBOT_BUCKET:
-            Ref: BucketName
-          DOMAIN_EMAIL:
-            Ref: DomainEmail
-          DOMAIN_LIST:
-            Ref: DomainList
-          CERTS_RENEW_DAYS_BEFORE_EXPIRATION:
-            Ref: CertRenewDays
+          DNS_CLOUDFLARE_API_TOKEN: !Ref DnsCloudflareApiToken
+          DOMAIN_EMAIL: !Ref DomainEmail
+          DOMAIN_LIST: !Ref DomainList
+          DAYS_BEFORE_EXPIRATION: !Ref DaysBeforeExpiration
       Timeout: 120
       MemorySize: 512
       Code:
-        S3Bucket:
-          Ref: BucketName
-        S3Key:
-          Fn::Sub: "certbot-${ObjectVersion}.zip"
+        ImageUri: !Sub "${EcrRepositoryUri}:latest"
 
   AwsCertbotFunctionEvent:
     Type: AWS::Events::Rule
@@ -137,3 +98,16 @@ Resources:
         Fn::GetAtt:
           - "AwsCertbotFunctionEvent"
           - "Arn"
+
+Outputs:
+  AwsCertbotFunctionArn:
+    Description: ARN of the AWS Certbot Lambda function
+    Value: !GetAtt AwsCertbotFunction.Arn
+
+  AwsCertbotFunctionName:
+    Description: Name of the AWS Certbot Lambda function
+    Value: !Ref AwsCertbotFunction
+
+  EventRuleName:
+    Description: Name of the AWS Certbot Lambda event rule
+    Value: !Ref AwsCertbotFunctionEvent
