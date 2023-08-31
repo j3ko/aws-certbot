@@ -13,7 +13,7 @@ Auto renew [letsencrypt.org](https://letsencrypt.org) SSL certificates provision
    cd aws-certbot
    ```
 
-1. Edit `.env.sample` and fill the [required fields](#environment-variables)
+1. Edit `.env.sample` and fill in the [required fields](#environment-variables)
 
 1. Build the docker image
 
@@ -39,13 +39,13 @@ Running **aws-certbot** locally will:
 | AWS_ACCESS_KEY_ID | AWS access key |  ✅ |
 | AWS_SECRET_ACCESS_KEY | AWS secret access key |  ✅ |
 | AWS_DEFAULT_REGION | AWS region to use |  ✅ |
-| DOMAIN_LIST | A list of domains grouped by commas and semicolons.  The semicolon seperates groups of domains while commas seperate individual domains; e.g., `domain.com,*.domain.com;example.io,staging.example.io` |  ✅ |
+| DOMAIN_LIST | A list of domains separated by commas and semicolons. The semicolon separates groups of domains, while commas separate individual domains. For example: `domain.com,*.domain.com;example.io,staging.example.io` |  ✅ |
 | DOMAIN_EMAIL | Cloudflare API key with edit.zone permissions |  ✅ |
 | DAYS_BEFORE_EXPIRATION | Number of days before expiration to request renewal |  ✅ |
 
 ## Deploying to AWS
 
-1. Edit `.env.sample` and fill the [required fields](#environment-variables)
+1. Edit `.env.sample` and fill in the [required fields](#environment-variables)
 
 1. Build the docker image
 
@@ -60,9 +60,9 @@ Running **aws-certbot** locally will:
 
 ### What does it do?
 
-1. The **aws-certbot** docker image is built and uploaded to ECR.
+1. The **aws-certbot** docker image is built and uploaded to [ECR](https://aws.amazon.com/ecr/).
 1. The cloud formation defined in `cloud.yaml` is deployed to run the docker image as a lambda function.
-1. A timer is defined in `cloud.yaml` to execute the lambda function once a day. 
+1. A timer is defined in `cloud.yaml` to execute the lambda function once a day.
 
 ## Known Issues
 
