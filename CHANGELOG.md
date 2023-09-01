@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1](https://github.com/j3ko/aws-certbot/compare/v2.0.0...v2.0.1) (2023-09-01)
+
+
+### Bug Fixes
+
+* deployment from arm64 ([#29](https://github.com/j3ko/aws-certbot/issues/29)) ([b4bdf4b](https://github.com/j3ko/aws-certbot/commit/b4bdf4b193c67462bbfb8ce04146ff753907bcd7))
+
 ## [2.0.0](https://github.com/j3ko/aws-certbot/compare/v1.1.0...v2.0.0) (2023-08-31)
 
 
