@@ -46,9 +46,12 @@ aws cloudformation deploy --stack-name ${APP_NAME} \
 # Get the ARN of the Lambda function from stack outputs
 CERTBOT_FUNCTION_ARN=$(aws cloudformation describe-stacks --stack-name ${APP_NAME} --query 'Stacks[0].Outputs[?OutputKey==`AwsCertbotFunctionArn`].OutputValue' --output text)
 
+ARCH=$(dpkg --print-architecture)
+
 # Update the Lambda function code using the extracted ARN
 aws lambda update-function-code \
   --function-name ${CERTBOT_FUNCTION_ARN} \
+  --architectures ${ARCH} \
   --image-uri ${ECR_REPOSITORY_URI}:latest > /dev/null
 
 echo "Deployment complete"
