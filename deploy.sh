@@ -40,6 +40,7 @@ aws cloudformation deploy --stack-name ${APP_NAME} \
     DomainList=${DOMAIN_LIST} \
     DomainEmail=${DOMAIN_EMAIL} \
     DaysBeforeExpiration=${DAYS_BEFORE_EXPIRATION} \
+    LambdaTimeout=${LAMBDA_TIMEOUT} \
     Timestamp=${TIMESTAMP} \
   --capabilities CAPABILITY_IAM
 

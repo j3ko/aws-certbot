@@ -42,6 +42,7 @@ Running **aws-certbot** locally will:
 | DOMAIN_LIST | A list of domains separated by commas and semicolons. The semicolon separates groups of domains, while commas separate individual domains. For example: `domain.com,*.domain.com;example.io,staging.example.io` |  ✅ |
 | DOMAIN_EMAIL | Cloudflare API key with edit.zone permissions |  ✅ |
 | DAYS_BEFORE_EXPIRATION | Number of days before expiration to request renewal |  ✅ |
+| LAMBDA_TIMEOUT | Lambda timeout in seconds |  ✅ |
 
 ## Deploying to AWS
 

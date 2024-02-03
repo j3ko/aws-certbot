@@ -18,6 +18,9 @@ Parameters:
   DaysBeforeExpiration:
     Type: String
 
+  LambdaTimeout:
+    Type: String
+
   Timestamp:
     Type: String
 
@@ -69,7 +72,7 @@ Resources:
           DOMAIN_EMAIL: !Ref DomainEmail
           DOMAIN_LIST: !Ref DomainList
           DAYS_BEFORE_EXPIRATION: !Ref DaysBeforeExpiration
-      Timeout: 120
+      Timeout: !Ref LambdaTimeout
       MemorySize: 512
       Code:
         ImageUri: !Sub "${EcrRepositoryUri}:latest"
