@@ -106,16 +106,22 @@ def upload_cert_to_acm(cert, domains):
 
     return None
 
+def process_lineage(lineage, domains, email):
+    try:
+        logger.info('Processing: ({}) {}'.format(lineage, domains))
+        if should_provision(domains):
+            cert = provision_cert(email, lineage, domains)
+            upload_cert_to_acm(cert, domains)
+    except Exception as e:
+        logger.error(e)
+
 def handler(event, context):
     try:
         dlist = DomainList(os.environ['DOMAIN_LIST'])
         email = os.environ['DOMAIN_EMAIL']
         logger.info('Processing domain list: {}'.format(dlist.original))
         for lineage, domains in dlist.lineage.items():
-            logger.info('Processing: ({}) {}'.format(lineage, domains))
-            if should_provision(domains):
-                cert = provision_cert(email, lineage, domains)
-                upload_cert_to_acm(cert, domains)
+            process_lineage(lineage, domains, email)
     except Exception as e:
         logger.error(e)
         raise
