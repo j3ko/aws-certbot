@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.1.0](https://github.com/j3ko/aws-certbot/compare/v2.0.1...v2.1.0) (2024-02-03)
+
+
+### Features
+
+* add lambda timeout ([#35](https://github.com/j3ko/aws-certbot/issues/35)) ([cb8988b](https://github.com/j3ko/aws-certbot/commit/cb8988bb91f4353928466cf5f1664ca773be1ea6)), closes [#32](https://github.com/j3ko/aws-certbot/issues/32)
+
+
+### Bug Fixes
+
+* disable halting on process exceptions ([#33](https://github.com/j3ko/aws-certbot/issues/33)) ([0ea68a4](https://github.com/j3ko/aws-certbot/commit/0ea68a4798bc0ba85e8113c6b9d6c7dd029134b6)), closes [#31](https://github.com/j3ko/aws-certbot/issues/31)
+
 ## [2.0.1](https://github.com/j3ko/aws-certbot/compare/v2.0.0...v2.0.1) (2023-09-01)
 
 
